@@ -1,9 +1,11 @@
 #include <iostream>
 #include <vector>
+#include <string>
 
 using std::cin;
 using std::cout;
 using std::vector;
+using std::string;
 
 vector <vector <char>> Polybius_square() {
     /*
@@ -28,6 +30,14 @@ vector <vector <char>> Polybius_square() {
     return square;
 }
 
+string replace_j(string message) {
+    while (message.find('J') != std::string::npos) {
+        message.replace(message.find('J'), 1, 1, 'I');
+    }
+    return message;
+}
+
 int main() {
+    
     return 0;
 }
