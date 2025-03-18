@@ -75,6 +75,52 @@ string Pol_square_method_1(string message) {
     return encrypt_message;
 }
 
+bool letter_is_consonant(char letter) {
+    /*
+    Функция, проверяющая, является ли буква согласной
+    */
+    vector<char> consonants = {
+        'B', 'C', 'D', 'F', 'G', 'H', 'J', 'K', 'L', 'M',
+        'N', 'P', 'Q', 'R', 'S', 'T', 'V', 'W', 'X', 'Z'
+    };
+    letter = toupper(letter);
+    for (int i = 0; i < consonants.size(); i++) {
+        if (letter == consonants[i]) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+string pig_latin(string message) {
+    /*
+    Функция, шифрующая сообщение поросячьей латынью
+    */
+    std::transform(message.begin(), message.end(), message.begin(), toupper);
+    message = replace_j(message);
+    string encrypt_message = "";
+    if (!letter_is_consonant(message[0])) {
+        encrypt_message = message;
+        encrypt_message += "AY";
+        return encrypt_message;
+    }
+    int last_consonant_letter_index = -1;
+    for (int i = 0; i < message.size(); i++) {
+        if (not letter_is_consonant(message[i])) {
+            last_consonant_letter_index = i;
+            break;
+        }
+    }
+    for (int i = last_consonant_letter_index + 1; i < message.size(); i++) {
+        encrypt_message.push_back(message[i]);
+    }
+    for (int i = 0; i <= last_consonant_letter_index; i++) {
+        encrypt_message.push_back(message[i]);
+    }
+    encrypt_message += "AY";
+    return encrypt_message;
+}
+
 int main() {
     
     return 0;
