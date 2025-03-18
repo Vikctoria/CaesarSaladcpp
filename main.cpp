@@ -8,29 +8,46 @@ using std::cout;
 using std::vector;
 using std::string;
 
-vector <vector <char>> Polybius_square() {
+vector <vector <char>> Polybius_square(string key_word) {
     /*
-    Функция, возвращающая квадрат Полибия:
-    A B C D E
-    F G H I K
-    L M N O P
+    Функция, возвращающая квадрат Полибия с ключевым словом.
+    Пример:
+    Ключ: "CODE"
+
+    C O D E A
+    B F G H I
+    K L M N P
     Q R S T U
     V W X Y Z
     */
     vector <vector <char>> square(5, vector <char>(5));
-    char letter;
-    for (int row = 0; row < 5; ++row) {
-        for (int column = 0; column < 5; ++column) {
-            letter = 'A' + row * 5 + column;
-            square[row][column] = letter + (letter >= 'J');
+    int row = 0, column = 0;
+    int let_ind;
+    for (char letter : key_word) {
+        square[row][column] = letter;
+        row = row + (column + 1) / 5;
+        column = (column + 1) % 5;
+    }
+    char letter = 'A';
+    while (row < 5) {
+        while (column < 5) {
+            while (key_word.find(letter) != std::string::npos) {
+                ++letter;
+            }
+            square[row][column] = letter;
+            ++letter;
+            letter += (letter == 'J');
+            ++column;
         }
+        ++row;
+        column = 0;
     }
     return square;
 }
 
 string replace_j(string message) {
     /*
-    Функция меняющая в сообщении все "J" на "I"
+    Функция, меняющая в сообщении все "J" на "I"
     */
     while (message.find('J') != std::string::npos) {
         message.replace(message.find('J'), 1, 1, 'I');
@@ -40,18 +57,16 @@ string replace_j(string message) {
 
 string Pol_square_method_1(string message) {
     /*
-    Функция шифрующая сообщение по одному из методов шифровки с помощью квадрата Полибия
+    Функция, шифрующая сообщение по одному из методов шифровки с помощью квадрата Полибия
     */
     std::transform(message.begin(), message.end(), message.begin(), toupper);
     message = replace_j(message);
-    vector <vector <char>> polyb_square = Polybius_square();
     string encrypt_message = "";
     char new_let;
     for (char let_to_replace : message) {
         if (isalpha(let_to_replace)) {
-            int row = ((let_to_replace - 'A' - (let_to_replace >= 'J')) / 5 + 1) % 5;
-            int col = (let_to_replace - 'A' - (let_to_replace >= 'J')) % 5;
-            new_let = polyb_square[row][col];
+            new_let = (let_to_replace + 5 + ('J' - 5 <= let_to_replace && let_to_replace <= 'J'));
+            new_let = (new_let > 'Z' ? new_let - 26 : new_let);
         } else {
             new_let = let_to_replace;
         }
