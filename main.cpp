@@ -12,13 +12,13 @@ vector <vector <char>> Polybius_square(string key_word) {
     /*
     Функция, возвращающая квадрат Полибия с ключевым словом.
     Пример:
-    Ключ: "CODE"
+    Ключ: "KEYWORD"
 
-    C O D E A
-    B F G H I
-    K L M N P
-    Q R S T U
-    V W X Y Z
+    K E Y W O
+    R D A B C
+    F G H I L
+    M N P Q S
+    T U V X Z
     */
     vector <vector <char>> square(5, vector <char>(5));
     int row = 0, column = 0;
@@ -43,6 +43,17 @@ vector <vector <char>> Polybius_square(string key_word) {
         column = 0;
     }
     return square;
+}
+
+int size_alph(string str) {
+    /*
+    Функция, возвращающая количество буквенных символов в строке
+    */
+    int length = 0;
+    for (char let : str) {
+        length += (isalpha(let));
+    }
+    return length;
 }
 
 string replace_j(string message) {
@@ -72,6 +83,64 @@ string Pol_square_method_1(string message) {
         }
         encrypt_message.push_back(new_let);
     }
+    return encrypt_message;
+}
+
+string Wheatstone_cipher(string message, string key_word) {
+    /*
+    Функция, шифрующая сообщение шифром Уитстона
+    */
+    std::transform(message.begin(), message.end(), message.begin(), toupper);
+    message = replace_j(message);
+    if (size_alph(message) % 2 != 0) {
+        message.push_back('X');
+    }
+    string encrypt_message = "";
+
+    vector <vector <char>> square = Polybius_square(key_word);
+    int ind_row_1, ind_col_1, ind_row_2, ind_col_2;
+    int i;
+    for (i = 0; i < message.size() && size_alph(message.substr(i, message.size() - i)); i += 2) {
+        string punct_marks_1 = "", punct_marks_2 = "";
+        while (!isalpha(message[i])) {
+            punct_marks_1.push_back(message[i]);
+            ++i;
+        }
+        char let_1 = message[i];
+        while (!isalpha(message[i + 1])) {
+            punct_marks_2.push_back(message[i + 1]);
+            ++i;
+        }
+        char let_2 = message[i + 1];
+        int ind_1 = key_word.find(let_1);
+        if (key_word.find(let_1) == std::string::npos) {
+            int left_ind = key_word.size(), right_ind = 25, mid_ind;
+            char is_it_my_let;
+            while (left_ind < right_ind) {
+                mid_ind = (left_ind + right_ind + 1) / 2;
+                is_it_my_let = square[mid_ind / 5][mid_ind % 5];
+                if (is_it_my_let > let_1) {
+                    right_ind = mid_ind - 1;
+                } else {
+                    left_ind = mid_ind;
+                }
+            }
+            ind_1 = left_ind;
+        }
+        ind_row_1 = ind_1 / 5;
+        ind_col_1 = ind_1 % 5;
+
+        ind_row_2 = (let_2 - 'A' - (let_2 >= 'J')) / 5;
+        ind_col_2 = (let_2 - 'A' - (let_2 >= 'J')) % 5;
+
+        encrypt_message += punct_marks_1;
+        encrypt_message.push_back(square[ind_row_1][ind_col_2]);
+
+        encrypt_message += punct_marks_2;
+        let_2 = let_2 + ind_col_1 - ind_col_2;
+        encrypt_message.push_back((let_2 == 'J' ? 'I' : let_2));
+    }
+    encrypt_message += message.substr(i, message.size() - i);
     return encrypt_message;
 }
 
