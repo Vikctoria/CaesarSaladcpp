@@ -272,10 +272,10 @@ string pig_latin(string message) {
             break;
         }
     }
-    for (int i = last_consonant_letter_index + 1; i < message.size(); i++) {
+    for (int i = last_consonant_letter_index; i < message.size(); i++) {
         encrypt_message.push_back(message[i]);
     }
-    for (int i = 0; i <= last_consonant_letter_index; i++) {
+    for (int i = 0; i <= last_consonant_letter_index - 1; i++) {
         encrypt_message.push_back(message[i]);
     }
     encrypt_message += "AY";
