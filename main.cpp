@@ -240,6 +240,59 @@ string Playfair_cipher(string message, string key_word) {
     return encrypt_message;
 }
 
+string Cardan_grille(string message) {
+    /*
+    Функция, шифрующая сообщение при помощи решётки Кардано
+    */
+    std::transform(message.begin(), message.end(), message.begin(), toupper);
+    string encrypt_message = "";
+
+    vector <vector <int>> grille = {
+        {1, 0, 0, 0},
+        {0, 1, 0, 0},
+        {0, 0, 0, 1},
+        {0, 0, 1, 0}
+    };
+    vector <vector <int>> grille_rotate(4, vector <int>(4));
+    vector <vector <char>> encrypt_mes_table(4, vector <char>(4));
+    
+    string no_alph = "";
+    int ind = 0;
+    for (int q = 0; q < 4; ++q) {
+        for (int i = 0; i < 4; ++i) {
+            for (int j = 0; j < 4; ++j) {
+                while (!isalpha(message[ind]) && ind < message.size()) {
+                    ++ind;
+                }
+                if (grille[i][j]) {
+                    encrypt_mes_table[i][j] = message[ind];
+                    ++ind;
+                }
+                grille_rotate[j][3 - i] = grille[i][j];
+            }
+        }
+        grille = grille_rotate;
+    }
+    int count_punct = 0;
+    for (int i = 0; i < 4; ++i) {
+        for (int j = 0; j < 4; ++j) {
+            ind = i * 4 + j + count_punct;
+            while (!isalpha(message[ind])) {
+                encrypt_message.push_back(message[ind]);
+                ++ind;
+                ++count_punct;
+            }
+            encrypt_message.push_back(encrypt_mes_table[i][j]);
+        }
+    }
+    ind = 16 + count_punct;
+    while (ind < message.size()) {
+        encrypt_message.push_back(message[ind]);
+        ++ind;
+    }
+    return encrypt_message;
+}
+
 bool letter_is_consonant(char letter) {
     /*
     Функция, проверяющая, является ли буква согласной
