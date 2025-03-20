@@ -7,6 +7,7 @@ using std::cin;
 using std::cout;
 using std::vector;
 using std::string;
+using std::pair;
 
 vector <vector <char>> Polybius_square(string key_word) {
     /*
@@ -66,6 +67,57 @@ string replace_j(string message) {
     return message;
 }
 
+string repeat_processing(string str) {
+    /*
+    Функция, вставляющая 'X' между повторяющимися буквами (если они находятся в одной биграмме)
+    */
+    char last_let = '#';
+    string new_message = "";
+    for (int i = 0; i < str.size(); ++i) {
+        if (last_let == str[i] and new_message.size() % 2 != 0) {
+            new_message.push_back('X');
+        }
+        if (isalpha(str[i])) {
+            last_let = str[i];
+        }
+        new_message.push_back(str[i]);
+    }
+    return new_message;
+}
+
+pair<int, int> find_in_square(char let_1,  string key_word) {
+    /*
+    Функция, которая ищет букву let_1 бинпоиском или функцией find в квадрате Полибия с ключом
+    */
+    vector <vector <char>> square = Polybius_square(key_word);
+    int ind_row_1, ind_col_1;
+    int ind_1 = key_word.find(let_1);
+    if (key_word.find(let_1) == std::string::npos) {
+        int left_ind = key_word.size(), right_ind = 25, mid_ind;
+        char is_it_my_let;
+        while (left_ind < right_ind) {
+            mid_ind = (left_ind + right_ind + 1) / 2;
+            is_it_my_let = square[mid_ind / 5][mid_ind % 5];
+            if (is_it_my_let > let_1) {
+                right_ind = mid_ind - 1;
+            }
+            else {
+                left_ind = mid_ind;
+            }
+        }
+        ind_1 = left_ind;
+    }
+
+    ind_row_1 = ind_1 / 5;
+    ind_col_1 = ind_1 % 5;
+
+    pair<int, int> let;
+    let.first = ind_row_1;
+    let.second = ind_col_1;
+
+    return let;
+}
+
 string Pol_square_method_1(string message) {
     /*
     Функция, шифрующая сообщение по одному из методов шифровки с помощью квадрата Полибия
@@ -78,7 +130,8 @@ string Pol_square_method_1(string message) {
         if (isalpha(let_to_replace)) {
             new_let = (let_to_replace + 5 + ('J' - 5 <= let_to_replace && let_to_replace <= 'J'));
             new_let = (new_let > 'Z' ? new_let - 26 : new_let);
-        } else {
+        }
+        else {
             new_let = let_to_replace;
         }
         encrypt_message.push_back(new_let);
@@ -95,6 +148,52 @@ string Wheatstone_cipher(string message, string key_word) {
     if (size_alph(message) % 2 != 0) {
         message.push_back('X');
     }
+
+    string encrypt_message = "";
+    vector <vector <char>> square = Polybius_square(key_word);
+
+    int ind_row_2, ind_col_2;
+    int i;
+    for (i = 0; i < message.size() && size_alph(message.substr(i, message.size() - i)); i += 2) {
+        string punct_marks_1 = "", punct_marks_2 = "";
+        while (!isalpha(message[i])) {
+            punct_marks_1.push_back(message[i]);
+            ++i;
+        }
+        char let_1 = message[i];
+        while (!isalpha(message[i + 1])) {
+            punct_marks_2.push_back(message[i + 1]);
+            ++i;
+        }
+        char let_2 = message[i + 1];
+
+        pair<int, int> let_1_inds = find_in_square(let_1, key_word);
+
+        ind_col_2 = (let_2 - 'A' - (let_2 >= 'J')) % 5;
+
+        char new_let_2 = let_2 + let_1_inds.second - ind_col_2;
+
+        encrypt_message += punct_marks_1;
+        encrypt_message.push_back(square[let_1_inds.first][ind_col_2]);
+
+        encrypt_message += punct_marks_2;
+        encrypt_message.push_back((new_let_2 == 'J' ? 'I' : new_let_2));
+    }
+    encrypt_message += message.substr(i, message.size() - i);
+    return encrypt_message;
+}
+
+string Playfair_cipher(string message, string key_word) {
+    /*
+    Функция, шифрующая сообщение шифром Плейфера
+    */
+    std::transform(message.begin(), message.end(), message.begin(), toupper);
+    message = replace_j(message);
+    message = repeat_processing(message);
+    if (size_alph(message) % 2 != 0) {
+        message.push_back('X');
+    }
+
     string encrypt_message = "";
 
     vector <vector <char>> square = Polybius_square(key_word);
@@ -112,35 +211,28 @@ string Wheatstone_cipher(string message, string key_word) {
             ++i;
         }
         char let_2 = message[i + 1];
-        int ind_1 = key_word.find(let_1);
-        if (key_word.find(let_1) == std::string::npos) {
-            int left_ind = key_word.size(), right_ind = 25, mid_ind;
-            char is_it_my_let;
-            while (left_ind < right_ind) {
-                mid_ind = (left_ind + right_ind + 1) / 2;
-                is_it_my_let = square[mid_ind / 5][mid_ind % 5];
-                if (is_it_my_let > let_1) {
-                    right_ind = mid_ind - 1;
-                } else {
-                    left_ind = mid_ind;
-                }
-            }
-            ind_1 = left_ind;
-        }
-        ind_row_1 = ind_1 / 5;
-        ind_col_1 = ind_1 % 5;
 
-        ind_row_2 = (let_2 - 'A' - (let_2 >= 'J')) / 5;
-        ind_col_2 = (let_2 - 'A' - (let_2 >= 'J')) % 5;
+        pair <int, int> let_1_inds = find_in_square(let_1, key_word);
+        pair <int, int> let_2_inds = find_in_square(let_2, key_word);
+
+        if (let_1_inds.first == let_2_inds.first) {
+            let_1_inds.second = (let_1_inds.second + 1) % 5;
+            let_2_inds.second = (let_2_inds.second + 1) % 5;
+        } else if (let_1_inds.second == let_2_inds.second) {
+            let_1_inds.first = (let_1_inds.first + 1) % 5;
+            let_2_inds.first = (let_2_inds.first + 1) % 5;
+        } else {
+            int temp = let_1_inds.second;
+            let_1_inds.second = let_2_inds.second;
+            let_2_inds.second = temp;
+        }
 
         encrypt_message += punct_marks_1;
-        encrypt_message.push_back(square[ind_row_1][ind_col_2]);
+        encrypt_message.push_back(square[let_1_inds.first][let_1_inds.second]);
 
         encrypt_message += punct_marks_2;
-        let_2 = let_2 + ind_col_1 - ind_col_2;
-        encrypt_message.push_back((let_2 == 'J' ? 'I' : let_2));
+        encrypt_message.push_back(square[let_2_inds.first][let_2_inds.second]);
     }
-    encrypt_message += message.substr(i, message.size() - i);
     return encrypt_message;
 }
 
