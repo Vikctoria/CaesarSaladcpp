@@ -2,6 +2,8 @@
 #include <vector>
 #include <string>
 #include <algorithm>
+#include <cstdlib>
+#include <ctime>
 
 using std::cin;
 using std::cout;
@@ -279,6 +281,31 @@ string pig_latin(string message) {
         encrypt_message.push_back(message[i]);
     }
     encrypt_message += "AY";
+    return encrypt_message;
+}
+
+string caesar_cipher(string message) {
+    /*
+    Функция, шифрующая сообщение шифром цезаря с рандомным сдвигом
+    */
+    std::srand(std::time(0));
+    int shift = std::rand() % 25 + 1;
+    std::transform(message.begin(), message.end(), message.begin(), toupper);
+    message = replace_j(message);
+    string encrypt_message = "";
+    vector<char> letters = {
+        'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 
+        'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 
+        'U', 'V', 'W', 'X', 'Y', 'Z'
+    };
+    for (int i = 0; i < message.size(); i++) {
+        for (int j = 0; j < letters.size(); j++) {
+            if (message[i] == letters[j]) {
+                encrypt_message += letters[(j + shift) % letters.size()];
+                break;
+            }
+        }
+    }
     return encrypt_message;
 }
 
