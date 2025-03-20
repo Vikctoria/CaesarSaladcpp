@@ -4,12 +4,14 @@
 #include <algorithm>
 #include <cstdlib>
 #include <ctime>
+#include <sstream>
 
 using std::cin;
 using std::cout;
 using std::vector;
 using std::string;
 using std::pair;
+using std::istringstream;
 
 vector <vector <char>> Polybius_square(string key_word) {
     /*
@@ -255,32 +257,65 @@ bool letter_is_consonant(char letter) {
     return 0;
 }
 
-string pig_latin(string message) {
+string pig_latin_word(string message) {
     /*
-    Функция, шифрующая сообщение поросячьей латынью
+    Функция, шифрующая слово поросячьей латынью
     */
     std::transform(message.begin(), message.end(), message.begin(), toupper);
     message = replace_j(message);
     string encrypt_message = "";
-    if (!letter_is_consonant(message[0])) {
-        encrypt_message = message;
-        encrypt_message += "AY";
-        return encrypt_message;
-    }
-    int last_consonant_letter_index = -1;
-    for (int i = 0; i < message.size(); i++) {
-        if (not letter_is_consonant(message[i])) {
-            last_consonant_letter_index = i;
+    vector<int> notLettersIndexes;
+    for (int i = message.size() - 1; i >= 0; i--) {
+        if (!isalpha(message[i])) {
+            notLettersIndexes.push_back(i);
+        } else {
             break;
         }
     }
-    for (int i = last_consonant_letter_index; i < message.size(); i++) {
-        encrypt_message.push_back(message[i]);
+    int firstNotLetterChar = -1;
+    if (!notLettersIndexes.empty()) {
+        firstNotLetterChar = notLettersIndexes[notLettersIndexes.size() - 1];
+    } else {
+        firstNotLetterChar = message.size();
     }
-    for (int i = 0; i <= last_consonant_letter_index - 1; i++) {
-        encrypt_message.push_back(message[i]);
+    if (!letter_is_consonant(message[0])) {
+        encrypt_message = message;
+        encrypt_message += "AY";
+    } else {
+        int last_consonant_letter_index = -1;
+        for (int i = 0; i < message.size(); i++) {
+            if (not letter_is_consonant(message[i])) {
+                last_consonant_letter_index = i;
+                break;
+            }
+        }
+        for (int i = last_consonant_letter_index; i < firstNotLetterChar; i++) {
+            encrypt_message.push_back(message[i]);
+        }
+        for (int i = 0; i <= last_consonant_letter_index - 1; i++) {
+            encrypt_message.push_back(message[i]);
+        }
+        encrypt_message += "AY";
     }
-    encrypt_message += "AY";
+    for (int i = notLettersIndexes.size() - 1; i >= 0; i--) {
+        encrypt_message.push_back(message[notLettersIndexes[i]]);
+    }
+    return encrypt_message;
+}
+
+string pig_latin(string message) {
+    /*
+    Функция, шифрующая сообщение поросячьей латынью
+    */
+    istringstream fin(message);
+    string word;
+    string encrypt_message = "";
+    while (fin >> word) {
+        if (!encrypt_message.empty()) {
+            encrypt_message += " ";
+        }
+        encrypt_message += pig_latin_word(word);
+    }
     return encrypt_message;
 }
 
@@ -299,10 +334,14 @@ string caesar_cipher(string message) {
         'U', 'V', 'W', 'X', 'Y', 'Z'
     };
     for (int i = 0; i < message.size(); i++) {
-        for (int j = 0; j < letters.size(); j++) {
-            if (message[i] == letters[j]) {
-                encrypt_message += letters[(j + shift) % letters.size()];
-                break;
+        if (!isalpha(message[i])) {
+                encrypt_message += message[i];
+        } else {
+            for (int j = 0; j < letters.size(); j++) {
+                if (message[i] == letters[j]) {
+                    encrypt_message += letters[(j + shift) % letters.size()];
+                    break;
+                }
             }
         }
     }
@@ -310,6 +349,6 @@ string caesar_cipher(string message) {
 }
 
 int main() {
-    
+
     return 0;
 }
