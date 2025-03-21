@@ -401,6 +401,31 @@ string caesar_cipher(string message) {
     return encrypt_message;
 }
 
+string vigener_cipher(string message, string key_word) {
+    /*
+    Функция, шифрующая сообщение шифром Вижинера
+    */
+    std::transform(message.begin(), message.end(), message.begin(), toupper);
+    string encrypt_message = "";
+    string repeated_key_word = "";
+    int i = 0;
+    while (repeated_key_word.size() != message.size()) {
+        repeated_key_word.push_back(key_word[i % key_word.size()]);
+        i++;
+    }
+    for (int i = 0; i < repeated_key_word.size(); i++) {
+        while (!isalpha(message[i]) && i < message.size()) {
+            encrypt_message.push_back(message[i]);
+            i++;
+        }
+        if (isalpha(message[i])) {
+            char let = (repeated_key_word[i] - 'A' + message[i]);
+            encrypt_message.push_back((let > 'Z' ? let - 'Z' + 'A' - 1: let));
+        }
+    }
+    return encrypt_message;
+}
+
 int main() {
 
     return 0;
