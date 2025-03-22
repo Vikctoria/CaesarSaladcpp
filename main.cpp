@@ -97,7 +97,7 @@ pair<int, int> find_in_square(char let_1,  string key_word) {
     int ind_row_1, ind_col_1;
     int ind_1 = key_word.find(let_1);
     if (key_word.find(let_1) == std::string::npos) {
-        int left_ind = key_word.size(), right_ind = 25, mid_ind;
+        int left_ind = key_word.size(), right_ind = 24, mid_ind;
         char is_it_my_let;
         while (left_ind < right_ind) {
             mid_ind = (left_ind + right_ind + 1) / 2;
@@ -378,7 +378,6 @@ string caesar_cipher(string message) {
     std::srand(std::time(0));
     int shift = std::rand() % 25 + 1;
     std::transform(message.begin(), message.end(), message.begin(), toupper);
-    message = replace_j(message);
     string encrypt_message = "";
     for (int i = 0; i < message.size(); i++) {
         if (!isalpha(message[i])) {
