@@ -315,6 +315,7 @@ string pig_latin_word(string message) {
     Функция, шифрующая слово поросячьей латынью
     */
     std::transform(message.begin(), message.end(), message.begin(), toupper);
+    message = replace_j(message);
     string encrypt_message = "";
     vector<int> notLettersIndexes;
     for (int i = message.size() - 1; i >= 0; i--) {
@@ -378,22 +379,13 @@ string caesar_cipher(string message) {
     std::srand(std::time(0));
     int shift = std::rand() % 25 + 1;
     std::transform(message.begin(), message.end(), message.begin(), toupper);
+    message = replace_j(message);
     string encrypt_message = "";
-    vector<char> letters = {
-        'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 
-        'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 
-        'U', 'V', 'W', 'X', 'Y', 'Z'
-    };
     for (int i = 0; i < message.size(); i++) {
         if (!isalpha(message[i])) {
-                encrypt_message += message[i];
+            encrypt_message += message[i];
         } else {
-            for (int j = 0; j < letters.size(); j++) {
-                if (message[i] == letters[j]) {
-                    encrypt_message += letters[(j + shift) % letters.size()];
-                    break;
-                }
-            }
+            encrypt_message.push_back('A' + (message[i] - 'A' + shift) % 26);
         }
     }
     return encrypt_message;
