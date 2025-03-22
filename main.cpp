@@ -315,7 +315,6 @@ string pig_latin_word(string message) {
     Функция, шифрующая слово поросячьей латынью
     */
     std::transform(message.begin(), message.end(), message.begin(), toupper);
-    message = replace_j(message);
     string encrypt_message = "";
     vector<int> notLettersIndexes;
     for (int i = message.size() - 1; i >= 0; i--) {
@@ -335,7 +334,7 @@ string pig_latin_word(string message) {
         encrypt_message = message;
         encrypt_message += "AY";
     } else {
-        int last_consonant_letter_index = -1;
+        int last_consonant_letter_index = message.size();
         for (int i = 0; i < message.size(); i++) {
             if (not letter_is_consonant(message[i])) {
                 last_consonant_letter_index = i;
