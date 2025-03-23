@@ -319,6 +319,7 @@ string pig_latin_word(string message) {
     std::transform(message.begin(), message.end(), message.begin(), toupper);
     string encrypt_message = "";
     vector<int> notLettersIndexes;
+    // Ищем индексы, на которых стоят не буквы
     for (int i = message.size() - 1; i >= 0; i--) {
         if (!isalpha(message[i])) {
             notLettersIndexes.push_back(i);
@@ -326,31 +327,34 @@ string pig_latin_word(string message) {
             break;
         }
     }
-    int firstNotLetterChar = -1;
+    int firstNotLetterChar = -1; // Индекс первого небуквенного элемента с конца
     if (!notLettersIndexes.empty()) {
         firstNotLetterChar = notLettersIndexes[notLettersIndexes.size() - 1];
     } else {
         firstNotLetterChar = message.size();
     }
-    if (!letter_is_consonant(message[0])) {
+    if (!letter_is_consonant(message[0])) { // Если первый символ - гласная, то просто добавляем "AY" в конец исходного слова
         encrypt_message = message;
         encrypt_message += "AY";
     } else {
-        int last_consonant_letter_index = message.size();
+        int last_consonant_letter_index = message.size(); // Индекс последней согласной буквы
         for (int i = 0; i < message.size(); i++) {
             if (not letter_is_consonant(message[i])) {
                 last_consonant_letter_index = i;
                 break;
             }
         }
+        // Добавляем символы, начиная с первой гласной
         for (int i = last_consonant_letter_index; i < firstNotLetterChar; i++) {
             encrypt_message.push_back(message[i]);
         }
+        // Добавляем все согласные до первой гласной
         for (int i = 0; i <= last_consonant_letter_index - 1; i++) {
             encrypt_message.push_back(message[i]);
         }
         encrypt_message += "AY";
     }
+    // В конец добавляем небуквенные символы
     for (int i = notLettersIndexes.size() - 1; i >= 0; i--) {
         encrypt_message.push_back(message[notLettersIndexes[i]]);
     }
@@ -365,9 +369,10 @@ string pig_latin(string message) {
     string word;
     string encrypt_message = "";
     while (fin >> word) {
-        if (!encrypt_message.empty()) {
+        if (!encrypt_message.empty()) { // Если слово не пустое, добавляем пробел
             encrypt_message += " ";
         }
+        // Шифруем текущее слово и добавляем его
         encrypt_message += pig_latin_word(word);
     }
     return encrypt_message;
@@ -378,14 +383,14 @@ string caesar_cipher(string message) {
     Функция, шифрующая сообщение шифром цезаря с рандомным сдвигом
     */
     std::srand(std::time(0));
-    int shift = std::rand() % 25 + 1;
+    int shift = std::rand() % 25 + 1; // Генерируем случайное число от 1 до 25
     std::transform(message.begin(), message.end(), message.begin(), toupper);
     string encrypt_message = "";
     for (int i = 0; i < message.size(); i++) {
-        if (!isalpha(message[i])) {
+        if (!isalpha(message[i])) { // Если символ - не буква, то просто добавляем его
             encrypt_message += message[i];
         } else {
-            encrypt_message.push_back('A' + (message[i] - 'A' + shift) % 26);
+            encrypt_message.push_back('A' + (message[i] - 'A' + shift) % 26); // Если символ - буква, то шифруем его сдвигом
         }
     }
     return encrypt_message;
@@ -399,18 +404,19 @@ string vigener_cipher(string message, string key_word) {
     string encrypt_message = "";
     string repeated_key_word = "";
     int i = 0;
+    // Создаем повторяющееся ключевое слово, дублируя ключевое слово так, чтобы длина совпадала с длиной исходного слова
     while (repeated_key_word.size() != message.size()) {
         repeated_key_word.push_back(key_word[i % key_word.size()]);
         i++;
     }
     for (int i = 0; i < repeated_key_word.size(); i++) {
-        while (!isalpha(message[i]) && i < message.size()) {
+        while (!isalpha(message[i]) && i < message.size()) { // Если символ - не буква, то просто добавляем его
             encrypt_message.push_back(message[i]);
             i++;
         }
-        if (isalpha(message[i])) {
+        if (isalpha(message[i])) { // Шифруем букву
             char let = (repeated_key_word[i] - 'A' + message[i]);
-            encrypt_message.push_back((let > 'Z' ? let - 'Z' + 'A' - 1 : let));
+            encrypt_message.push_back((let > 'Z' ? let - 'Z' + 'A' - 1 : let)); // Не даем букве выйти за границы алфавита
         }
     }
     return encrypt_message;
