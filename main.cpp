@@ -713,6 +713,7 @@ public:
                 cout << "incorrect input\n";
                 cout << "minus live)\n";
                 --lives;
+                Heart(lives);
                 continue;
             }
 
@@ -827,6 +828,12 @@ public:
         sum_rounds_count += rounds_count;
     }
 
+    void reset() {
+        // здесь откатываем до заводских настроек свойства для следующей игры
+        score = 0;
+        lives = 3;
+    }
+
     void info() {
         // вывод какой-то общей инфы
         system("cls");
@@ -853,9 +860,7 @@ public:
         
         system("Color 0D");
 
-        // здесь откатываем до заводских настроек свойства для следующей игры
-        score = 0;
-        lives = 3;
+        
     }
 };
 
@@ -874,16 +879,17 @@ int main() {
     cin >> user_cin;
     std::transform(user_cin.begin(), user_cin.end(), user_cin.begin(), toupper);
     system("cls");
+    Instr();
 
     // цикл игр
     while (user_cin == "YES") {
         
-        Instr();
         player.rounds();
 
         // хочет ли он ещё?
         cout << "\x1B[95m" << CoutCentered("Play again? (if yes, enter \"yes\" without quotes)") << "\033[0m\t\t" << "\n";
         cin >> user_cin;
+        player.reset();
         std::transform(user_cin.begin(), user_cin.end(), user_cin.begin(), toupper);
     }
 
