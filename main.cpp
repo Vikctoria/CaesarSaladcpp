@@ -594,6 +594,7 @@ public:
             if (cipher_to_use != ciphers[user_response_ind]) {
                 --lives;
                 cout << "Wrong Answer\n";
+                cout << "correct answer is " << cipher_to_use << "\n";
                 cout << "minus live)\n";
             } else {                                     // иначе ответ правильный
                 ++score;
