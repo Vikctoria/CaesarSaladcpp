@@ -7,6 +7,7 @@
 #include <sstream>
 #include <chrono>
 #include <thread>
+#include <windows.h>
 
 using std::cin;
 using std::cout;
@@ -460,6 +461,109 @@ void sleep() {
     }
 }
 
+
+
+string CoutCentered(string text) {
+    HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+    PCONSOLE_SCREEN_BUFFER_INFO lpScreenInfo = new CONSOLE_SCREEN_BUFFER_INFO();
+    GetConsoleScreenBufferInfo(hConsole, lpScreenInfo);
+    COORD NewSBSize = lpScreenInfo->dwSize;
+    if (NewSBSize.X > text.size()) {
+        int newpos = ((NewSBSize.X - text.size()) / 2);
+        for (int i = 0; i < newpos; i++) cout << " ";
+    }
+    return text;
+}
+
+void Boldness(string text){
+    char esc_char = 27;
+    cout << esc_char << "[1m" << text << esc_char << "[0m" << std::endl; // вывод жирным
+}
+
+void Heart(int count) {
+    system("cls");
+    string top = "/\\/\\";
+    string mid = "\\  /";
+    string bot = " \\/ ";
+    if (count == 2) {
+        cout << top << " " << top << " " << "\033[5m" << top << "\033[0m" << "\n"
+            << mid << " " << mid << " " << "\033[5m" << mid << "\033[0m" << "\n"
+            << bot << " " << bot << " " << "\033[5m" << bot << "\033[0m" << "\n"; //Blinking text
+    } else if (count == 1) {
+        cout << top << " " << "\033[5m" << top << "\033[0m" << "\n"
+            << mid << " " << "\033[5m" << mid << "\033[0m" << "\n"
+            << bot << " " << "\033[5m" << bot << "\033[0m" << "\n"; //Blinking text
+    } else {
+        cout << "\033[5m" << top << "\033[0m" << "\n"
+            << "\033[5m" << mid << "\033[0m" << "\n"
+            << "\033[5m" << bot << "\033[0m" << "\n"; //Blinking text
+    }
+    std::chrono::seconds duraw(2);
+    std::this_thread::sleep_for(duraw);
+    system("cls");
+    if (count == 2) {
+        cout << top << " " << top << "\n"
+            << mid << " " << mid << "\n"
+            << bot << " " << bot << "\n";
+    } else if (count == 1) {
+        cout << top << "\n"
+            << mid << "\n"
+            << " \\/ " << "\n";
+    }
+    std::chrono::seconds duraww(1);
+    std::this_thread::sleep_for(duraww);
+    system("cls");
+}
+
+void Good(int count) {
+    system("cls");
+    string top = "/\\/\\";
+    string mid = "\\  /";
+    string bot = " \\/ ";
+    if (count == 2) {
+        cout << top << " " << top << "\n"
+            << mid << " " << mid << "\n"
+            << bot << " " << bot << "\n";
+    } else if (count == 1) {
+        cout << top << "\n"
+            << mid << "\n"
+            << " \\/ " << "\n";
+    } else {
+        cout << top << " " << top << " " << top << "\n"
+            << mid << " " << mid << " " << mid << "\n"
+            << bot << " " << bot << " " << bot << "\n";
+    }
+    std::chrono::seconds duraww(2);
+    std::this_thread::sleep_for(duraww);
+    system("cls");
+}
+
+int Instr() {
+    system("cls");
+    string instruction = "Welcome to the CaesarSalad game!\n\
+    Here you'll have to be smart and even lucky!\n\
+    You have to guess which cipher a message is encrypted with.\n\
+    There are 7 ciphers in the game:\n\
+    Pol_square_method_1, Wheatstone_cipher, Playfair_cipher,\n\
+    Cardan_grille, pig_latin, caesar_cipher, vigener_cipher.\n\n\
+    The rules of the game are simple: you will be given the original message and the same message, but encrypted,\n\
+    you will need to choose one of the four suggested answers and enter the answer number(1, 2, 3 or 4).\n\
+    Each round lasts 30 seconds, you need to be able to enter the answer in the given time!!\n\
+    You will initially have 3 lives and the game will last until they are gone.\n\
+    Lives are removed for\n\
+    1) Incorrect answers\n\
+    2) Incorrect input\n\
+    3) Expired time.\n\
+    Good luck! ^_^\n\
+    Prove that you really know the ciphers!\n";
+    Boldness(CoutCentered(instruction));
+    system("Color 0B");
+    cout << "Enter anything to continue: ";
+    string pl_an;
+    cin >> pl_an;
+    return 0;
+}
+
 class Player {
 private:
     string name = "Young cryptographer";   // как мы его будем называть
@@ -498,7 +602,16 @@ private:
 public:
     void hello_world() {
         // привет пользователю
-        cout << name << "\n";
+        string start = "Hello, Young cryptographer!";
+        string wel = "Welcome to Caesar Salad Cifer Game!";
+        Boldness(CoutCentered(start));
+        system("Color 0A");
+        Boldness(CoutCentered(wel));
+    }
+
+    void RoundCount(int count) {
+        system("cls");
+        cout << "\x1B[33mRound " << count << "\033[0m\t\t" << "\n";
     }
 
     void rounds() {
@@ -510,7 +623,7 @@ public:
             user_response = "";
             reason = "";
 
-            cout << "Round " << rounds_count << "\n";
+            RoundCount(rounds_count);
 
             // выбираем 4 случайных шифра
             vector <string> for_selection = cipher_names;
@@ -552,9 +665,20 @@ public:
 
 
             // вывод доп информации (алфавит, квадрат Полибия, ключевое слово)
+
+            cout << "Alphabet:" << "\n" << "\x1B[96mA B C D E F G H I J K L M\033[0m\t\t" << "\n";
+            cout << "\x1B[96mN O P Q R S T U V W X Y Z\033[0m\t\t" << "\n";
             
+            cout << "Polybius square:" << "\n";
+            for (int i = 0; i < 5; ++i) {
+                for (int j = 0; j < 5; ++j) {
+                    cout << "\x1B[96m" << Polybius_square(key)[i][j] << "\033[0m\t\t" << " ";
+                }
+                cout << "\n";
+            }
+
             // здесь красивый вывод word -> ans
-            cout << word << "\n" << ans << "\n";
+            cout << "\x1B[95m" << word << "\n" << " || || ||" << "\n" << " \\/ \\/ \\/" << "\n" << ans << "\033[0m\t\t" << "\n";
             // здесь красивый вывод поочереди вариантов ответа (ciphers)
             for (int i = 1; i < 5; ++i) {
                 cout << i << ". " << ciphers[i-1] << "\n";
@@ -573,6 +697,8 @@ public:
                 if (user_response == "yes") {
                     break;
                 } else {
+                    --lives;
+                    Heart(lives);
                     continue;
                 }
             }
@@ -587,25 +713,88 @@ public:
                 cout << "incorrect input\n";
                 cout << "minus live)\n";
                 --lives;
-                break;
+                continue;
             }
 
             // если ответ неправильный
+            string anss;
             if (cipher_to_use != ciphers[user_response_ind]) {
                 --lives;
-                cout << "Wrong Answer\n";
-                cout << "correct answer is " << cipher_to_use << "\n";
+                anss = "false";
+                Boldness("\x1B[31mWrong Answer\033[0m\t\t");
+                cout << "\n" << "correct answer is " << cipher_to_use << "\n";
                 cout << "minus live)\n";
             } else {                                     // иначе ответ правильный
                 ++score;
-                cout << "This is the correct answer\n";
+                anss = "true";
+                Boldness("\x1B[92mThis is the correct answer\033[0m\t\t");
+                cout << "\n";
+            }
+            
+            std::chrono::seconds durak(2);
+            std::this_thread::sleep_for(durak);
+            
+            if (anss == "false") {
+                Heart(lives);
+            } else {
+                Good(lives);
             }
 
-            // раунд окончен даём отдохнуть 5 секунд
+            // раунд окончен даём отдохнуть 6 секунд
             ++rounds_count;
-            cout << "Relax 5 seconds\n";
-            std::chrono::seconds dura(5);
-            std::this_thread::sleep_for(dura);
+            system("cls");
+            if (lives > 0) {
+                cout << "Relax 6 seconds\n";
+                cout << "      /|      _,,,---,,_\n"
+                    << "    z /,`.-'`'    -.  ;-;;,_\n"
+                    << "     |,4-  ) )-,_. ,| (  `'-'\n"
+                    << "    '---''(_/--'  `-'|_)  \n";
+                std::chrono::seconds dura(1);
+                std::this_thread::sleep_for(dura);
+                system("cls");
+                cout << "Relax 6 seconds\n";
+                cout << "      /|      _,,,---,,_\n"
+                    << "  z z /,`.-'`'    -.  ;-;;,_\n"
+                    << "     |,4-  ) )-,_. ,| (  `'-'\n"
+                    << "    '---''(_/--'  `-'|_)  \n";
+                std::chrono::seconds da(1);
+                std::this_thread::sleep_for(da);
+                system("cls");
+                cout << "Relax 6 seconds\n";
+                cout << "      /|      _,,,---,,_\n"
+                    << "Z z z /,`.-'`'    -.  ;-;;,_\n"
+                    << "     |,4-  ) )-,_. ,| (  `'-'\n"
+                    << "    '---''(_/--'  `-'|_)  \n";
+                std::chrono::seconds pip(1);
+                std::this_thread::sleep_for(pip);
+                system("cls");
+                cout << "Relax 6 seconds\n";
+                cout << "      /|      _,,,---,,_\n"
+                    << "    z /,`.-'`'    -.  ;-;;,_\n"
+                    << "     |,4-  ) )-,_. ,| (  `'-'\n"
+                    << "    '---''(_/--'  `-'|_)  \n";
+                std::chrono::seconds aaa(1);
+                std::this_thread::sleep_for(aaa);
+                system("cls");
+                cout << "Relax 6 seconds\n";
+                cout << "      /|      _,,,---,,_\n"
+                    << "  z z /,`.-'`'    -.  ;-;;,_\n"
+                    << "     |,4-  ) )-,_. ,| (  `'-'\n"
+                    << "    '---''(_/--'  `-'|_)  \n";
+                std::chrono::seconds eee(1);
+                std::this_thread::sleep_for(eee);
+                system("cls");
+                cout << "Relax 6 seconds\n";
+                cout << "      /|      _,,,---,,_\n"
+                 << "Z z z /,`.-'`'    -.  ;-;;,_\n"
+                    << "     |,4-  ) )-,_. ,| (  `'-'\n"
+                    << "    '---''(_/--'  `-'|_)  \n";
+                std::chrono::seconds pipi(1);
+                std::this_thread::sleep_for(pipi);
+                system("cls");
+            }
+            
+            
         }
         // обновляем лучший скор
         if (score > best_score) {
@@ -613,17 +802,56 @@ public:
         }
 
         // вывод информации в конце серии ранудов
-        cout << "End of the game" << "\n";
-        cout << "Rounds played: " << rounds_count << "\n";
-        cout << "Your score: " << score << "\n";
+        system("cls");
+        string b_ss = "Your score: " + std::to_string(score);
+        string r_pp = "Rounds played: " + std::to_string(rounds_count);
+        string en = "End of the game";
+        string uno = "    /\\_____/\\    ";
+        string uno2 = "   /  o   o  \\   ";
+        string uno3 = "  ( ==  ^  == )  ";
+        string uno4 = "   )         (   ";
+        string uno5 = "  (           )  ";
+        string uno6 = " ( (  )   (  ) ) ";
+        string uno7 = "(__(__)___(__)__)";
+        Boldness(CoutCentered(b_ss));
+        Boldness(CoutCentered(r_pp));
+        Boldness(CoutCentered(en));
+        Boldness(CoutCentered(uno));
+        Boldness(CoutCentered(uno2));
+        Boldness(CoutCentered(uno3));
+        Boldness(CoutCentered(uno4));
+        Boldness(CoutCentered(uno5));
+        Boldness(CoutCentered(uno6));
+        Boldness(CoutCentered(uno7));
+        system("Color 0D");
         sum_rounds_count += rounds_count;
-        info(); // окончание игры вывод какой-то общей инфы
     }
 
     void info() {
         // вывод какой-то общей инфы
-        cout << "Best score: " << best_score << "\n";
-        cout << "Rounds played for all the games: " << sum_rounds_count << "\n";
+        system("cls");
+        string b_s = "Best score: " + std::to_string(best_score);
+        string r_p = "Rounds played for all the games: " + std::to_string(sum_rounds_count);
+        string by = "Bye bye!";
+        string uno = "                   _ |\\_  ";
+        string uno2 = "                   \\` ..\\ ";
+        string uno3 = "              __,.-\" =__Y=";
+        string uno4 = "            .\"        )   ";
+        string uno5 = "      _    /   ,    \\/\\_  ";
+        string uno6 = "     ((____|    )_-\\ \\_-` ";
+        string uno7 = "     `-----'`-----` `--`  ";
+        Boldness(CoutCentered(b_s));
+        Boldness(CoutCentered(r_p));
+        Boldness(CoutCentered(by));
+        Boldness(CoutCentered(uno));
+        Boldness(CoutCentered(uno2));
+        Boldness(CoutCentered(uno3));
+        Boldness(CoutCentered(uno4));
+        Boldness(CoutCentered(uno5));
+        Boldness(CoutCentered(uno6));
+        Boldness(CoutCentered(uno7));
+        
+        system("Color 0D");
 
         // здесь откатываем до заводских настроек свойства для следующей игры
         score = 0;
@@ -633,6 +861,7 @@ public:
 
 
 int main() {
+    system("cls");
 
     string user_cin;   // ответы пользователя
     Player player;     // создаём игрока
@@ -640,22 +869,26 @@ int main() {
     player.hello_world();   // здороваемся с ним
 
     // хочет ли он вообще играть?
-    cout << "Start now? (if yes, enter \"yes\" without quotes)\n";
+    string first = "Start now? (if yes, enter \"yes\" without quotes)";
+    Boldness(CoutCentered(first));
     cin >> user_cin;
     std::transform(user_cin.begin(), user_cin.end(), user_cin.begin(), toupper);
+    system("cls");
 
     // цикл игр
     while (user_cin == "YES") {
+        
+        Instr();
         player.rounds();
 
         // хочет ли он ещё?
-        cout << "Play again? (if yes, enter \"yes\" without quotes)\n";
+        cout << "\x1B[95m" << CoutCentered("Play again? (if yes, enter \"yes\" without quotes)") << "\033[0m\t\t" << "\n";
         cin >> user_cin;
         std::transform(user_cin.begin(), user_cin.end(), user_cin.begin(), toupper);
     }
 
     // вывод про конец всех игр и пожелание возвращаться в игру
-    cout << "Bye bye\n";
+
 
     player.info();   // вывод информации по всем играм
 
