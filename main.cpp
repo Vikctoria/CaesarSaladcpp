@@ -546,7 +546,7 @@ public:
             else if (cipher_to_use == "caesar_cipher") { ans = caesar_cipher(word); }
             else if (cipher_to_use == "vigener_cipher") { ans = vigener_cipher(word, key); }
             else if (cipher_to_use == "Cardan_grille") {
-                word = words[ind_word % words_for_grille.size()];
+                word = words_for_grille[ind_word % words_for_grille.size()];
                 ans = Cardan_grille(word);
             }
 
