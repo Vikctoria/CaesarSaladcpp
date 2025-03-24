@@ -704,6 +704,7 @@ public:
                     break;
                 } else {
                     --lives;
+                    ++rounds_count;
                     Heart(lives);
                     continue;
                 }
@@ -719,6 +720,7 @@ public:
                 cout << "incorrect input\n";
                 cout << "minus live)\n";
                 --lives;
+                ++rounds_count;
                 std::chrono::seconds dap(2);
                 std::this_thread::sleep_for(dap);
                 Heart(lives);
