@@ -830,7 +830,7 @@ public:
         // вывод информации в конце серии ранудов
         system("cls");
         string b_ss = "Your score: " + std::to_string(score);
-        string r_pp = "Rounds played: " + std::to_string(rounds_count);
+        string r_pp = "Rounds played: " + std::to_string(rounds_count - 1);
         string en = "End of the game";
         string uno = "    /\\_____/\\    ";
         string uno2 = "   /  o   o  \\   ";
