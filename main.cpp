@@ -719,6 +719,8 @@ public:
                 cout << "incorrect input\n";
                 cout << "minus live)\n";
                 --lives;
+                std::chrono::seconds dap(2);
+                std::this_thread::sleep_for(dap);
                 Heart(lives);
                 continue;
             }
