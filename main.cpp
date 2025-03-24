@@ -861,7 +861,7 @@ public:
     }
 
     void info() {
-        // вывод какой-то общей инфы
+        // вывод какой-то общей информации
         system("cls");
         string b_s = "Best score: " + std::to_string(best_score);
         string r_p = "Rounds played for all the games: " + std::to_string(sum_rounds_count);
@@ -911,11 +911,11 @@ int main() {
     while (user_cin == "YES") {
         
         player.rounds();
+        player.reset();   // подготовка к следующей игре
 
         // хочет ли он ещё?
         cout << "\x1B[95m" << CoutCentered("Play again? (if yes, enter \"yes\" without quotes)") << "\033[0m\t\t" << "\n";
         cin >> user_cin;
-        player.reset();
         std::transform(user_cin.begin(), user_cin.end(), user_cin.begin(), toupper);
     }
 
