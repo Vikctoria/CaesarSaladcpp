@@ -29,29 +29,33 @@ vector <vector <char>> Polybius_square(string key_word) {
     M N P Q S
     T U V X Z
     */
-    vector <vector <char>> square(5, vector <char>(5));
+    vector <vector <char>> square(5, vector <char>(5));   // матрица с квадратом
     int row = 0, column = 0;
     int let_ind;
+
+    // начинаем заполнять нашу матрицу
+    // кладём туда сначала символы ключевого слова
     for (char letter : key_word) {
         square[row][column] = letter;
         row = row + (column + 1) / 5;
         column = (column + 1) % 5;
     }
+    // потом заполняем square оставшимися символами алфавита
     char letter = 'A';
     while (row < 5) {
         while (column < 5) {
             while (key_word.find(letter) != std::string::npos) {
-                ++letter;
+                ++letter;   // если символ в ключевом слове, то пропускаем его
             }
             square[row][column] = letter;
             ++letter;
-            letter += (letter == 'J');
+            letter += (letter == 'J');   // пропускаем 'J'
             ++column;
         }
         ++row;
         column = 0;
     }
-    return square;
+    return square;   // возвращаем квадрат Полибия
 }
 
 int size_alph(string str) {
@@ -82,11 +86,12 @@ string repeat_processing(string str) {
     char last_let = '#';
     string new_message = "";
     for (int i = 0; i < str.size(); ++i) {
+        // вставляем 'X', если последняя и нынешняя буква совпадают и длина сообщения нечётна
         if (last_let == str[i] and new_message.size() % 2 != 0) {
             new_message.push_back('X');
         }
         if (isalpha(str[i])) {
-            last_let = str[i];
+            last_let = str[i];   // запоминаем последнюю букву
         }
         new_message.push_back(str[i]);
     }
@@ -99,8 +104,9 @@ pair<int, int> find_in_square(char let_1, string key_word) {
     */
     vector <vector <char>> square = Polybius_square(key_word);
     int ind_row_1, ind_col_1;
-    int ind_1 = key_word.find(let_1);
-    if (key_word.find(let_1) == std::string::npos) {
+    int ind_1 = key_word.find(let_1);   // если буква в key_word, то индекс берём оттуда, индекс (если вытянуть квадрат в строку)
+    if (key_word.find(let_1) == std::string::npos) {   // если нет, то ищем её по квадрату
+        // бинпоиск
         int left_ind = key_word.size(), right_ind = 24, mid_ind;
         char is_it_my_let;
         while (left_ind < right_ind) {
@@ -112,90 +118,95 @@ pair<int, int> find_in_square(char let_1, string key_word) {
                 left_ind = mid_ind;
             }
         }
-        ind_1 = left_ind;
+        ind_1 = left_ind;   // ответ в левом индексе
     }
 
-    ind_row_1 = ind_1 / 5;
-    ind_col_1 = ind_1 % 5;
+    ind_row_1 = ind_1 / 5;   // индекс строки в матрице
+    ind_col_1 = ind_1 % 5;   // индекс столбца в матрице
 
+    // удобный возрат функции, индексы в pair <строка, столбец>
     pair<int, int> let;
     let.first = ind_row_1;
     let.second = ind_col_1;
 
-    return let;
+    return let;   // возвращаем индексы
 }
 
 string Pol_square_method_1(string message) {
     /*
-    Функция, шифрующая сообщение по одному из методов шифровки с помощью квадрата Полибия
+    Функция, шифрующая сообщение по одному из методов шифровки с помощью стандартного квадрата Полибия (без ключа)
     */
-    std::transform(message.begin(), message.end(), message.begin(), toupper);
-    message = replace_j(message);
+    std::transform(message.begin(), message.end(), message.begin(), toupper);   // message в верхний регистр
+    message = replace_j(message);   // удаляем 'J'
     string encrypt_message = "";
     char new_let;
     for (char let_to_replace : message) {
         if (isalpha(let_to_replace)) {
+            // к букве добавляем сдвиг 5 (тот же столбец но строка + 1) и вычитаем 1, если буква при шифровке "перескочит" или остановится на 'J'
             new_let = (let_to_replace + 5 + ('J' - 5 <= let_to_replace && let_to_replace <= 'J'));
-            new_let = (new_let > 'Z' ? new_let - 26 : new_let);
+            new_let = (new_let > 'Z' ? new_let - 26 : new_let);   // новая буква из квадрата
         } else {
-            new_let = let_to_replace;
+            new_let = let_to_replace;   // не буква
         }
         encrypt_message.push_back(new_let);
     }
-    return encrypt_message;
+    return encrypt_message;   // возвращаем зашифрованное сообщение
 }
 
 string Wheatstone_cipher(string message, string key_word) {
     /*
     Функция, шифрующая сообщение шифром Уитстона
     */
-    std::transform(message.begin(), message.end(), message.begin(), toupper);
-    message = replace_j(message);
+    std::transform(message.begin(), message.end(), message.begin(), toupper);   // message в верхний регистр
+    message = replace_j(message);   // удаляем 'J'
+
+    // если нечётное кол-во буквенных символов, то добавляем в конец 'X'
     if (size_alph(message) % 2 != 0) {
         message.push_back('X');
     }
 
     string encrypt_message = "";
-    vector <vector <char>> square = Polybius_square(key_word);
+    vector <vector <char>> square = Polybius_square(key_word);   // квадрат Полибия с данным ключом
 
     int ind_row_2, ind_col_2;
     int i;
     for (i = 0; i < message.size() && size_alph(message.substr(i, message.size() - i)); i += 2) {
         string punct_marks_1 = "", punct_marks_2 = "";
         while (!isalpha(message[i])) {
-            punct_marks_1.push_back(message[i]);
+            punct_marks_1.push_back(message[i]);   // собираем всю пунктуацию до следующей буквы
             ++i;
         }
-        char let_1 = message[i];
+        char let_1 = message[i];   // буква 1
         while (!isalpha(message[i + 1])) {
-            punct_marks_2.push_back(message[i + 1]);
+            punct_marks_2.push_back(message[i + 1]);   // собираем всю пунктуацию до следующей буквы
             ++i;
         }
-        char let_2 = message[i + 1];
+        char let_2 = message[i + 1];   // буква 2
 
-        pair<int, int> let_1_inds = find_in_square(let_1, key_word);
+        pair<int, int> let_1_inds = find_in_square(let_1, key_word);   // находим индексы let_1 в квадрате
 
-        ind_col_2 = (let_2 - 'A' - (let_2 >= 'J')) % 5;
+        ind_col_2 = (let_2 - 'A' - (let_2 >= 'J')) % 5;   // индекс let_2 в стандартном квадрате Полибия без ключа
 
-        char new_let_2 = let_2 + let_1_inds.second - ind_col_2;
+        char new_let_2 = let_2 + let_1_inds.second - ind_col_2;   // новая вторая буква (сдвигаем столбец старой второй буквы)
 
-        encrypt_message += punct_marks_1;
-        encrypt_message.push_back(square[let_1_inds.first][ind_col_2]);
+        encrypt_message += punct_marks_1;                                 // добавление пунктуации до первой буквы
+        encrypt_message.push_back(square[let_1_inds.first][ind_col_2]);   // добавление новой первой буквы
 
-        encrypt_message += punct_marks_2;
-        encrypt_message.push_back((new_let_2 == 'J' ? 'I' : new_let_2));
+        encrypt_message += punct_marks_2;                                  // добавление пунктуации до второй буквы
+        encrypt_message.push_back((new_let_2 == 'J' ? 'I' : new_let_2));   // добавление новой второй буквы
     }
     encrypt_message += message.substr(i, message.size() - i);
-    return encrypt_message;
+    return encrypt_message;   // возвращаем зашифрованное сообщение
 }
 
 string Playfair_cipher(string message, string key_word) {
     /*
     Функция, шифрующая сообщение шифром Плейфера
     */
-    std::transform(message.begin(), message.end(), message.begin(), toupper);
-    message = replace_j(message);
-    message = repeat_processing(message);
+    std::transform(message.begin(), message.end(), message.begin(), toupper);   // message в верхний регистр
+    message = replace_j(message);   // удаляем 'J'
+    message = repeat_processing(message);   // исключаем повторение двух символов в биграмме
+    // если нечётное кол-во буквенных символов, то добавляем в конец 'X'
     if (size_alph(message) % 2 != 0) {
         message.push_back('X');
     }
@@ -208,47 +219,48 @@ string Playfair_cipher(string message, string key_word) {
     for (i = 0; i < message.size() && size_alph(message.substr(i, message.size() - i)); i += 2) {
         string punct_marks_1 = "", punct_marks_2 = "";
         while (!isalpha(message[i])) {
-            punct_marks_1.push_back(message[i]);
+            punct_marks_1.push_back(message[i]);   // собираем всю пунктуацию до следующей буквы
             ++i;
         }
-        char let_1 = message[i];
+        char let_1 = message[i];   // буква 1
         while (!isalpha(message[i + 1])) {
-            punct_marks_2.push_back(message[i + 1]);
+            punct_marks_2.push_back(message[i + 1]);   // собираем всю пунктуацию до следующей буквы
             ++i;
         }
-        char let_2 = message[i + 1];
+        char let_2 = message[i + 1];   // буква 2
 
-        pair <int, int> let_1_inds = find_in_square(let_1, key_word);
-        pair <int, int> let_2_inds = find_in_square(let_2, key_word);
+        pair <int, int> let_1_inds = find_in_square(let_1, key_word);   // находим индексы let_1 в квадрате
+        pair <int, int> let_2_inds = find_in_square(let_2, key_word);   // находим индексы let_2 в квадрате
 
-        if (let_1_inds.first == let_2_inds.first) {
-            let_1_inds.second = (let_1_inds.second + 1) % 5;
-            let_2_inds.second = (let_2_inds.second + 1) % 5;
-        } else if (let_1_inds.second == let_2_inds.second) {
-            let_1_inds.first = (let_1_inds.first + 1) % 5;
-            let_2_inds.first = (let_2_inds.first + 1) % 5;
-        } else {
-            int temp = let_1_inds.second;
+        if (let_1_inds.first == let_2_inds.first) {            // если буквы в одной строке, то новые буквы стоят правее старых
+            let_1_inds.second = (let_1_inds.second + 1) % 5;   // новая первая буква
+            let_2_inds.second = (let_2_inds.second + 1) % 5;   // новая вторая буква
+        } else if (let_1_inds.second == let_2_inds.second) {   // если буквы в одном столбце, то новые буквы стоят под старыми буквами
+            let_1_inds.first = (let_1_inds.first + 1) % 5;     // новая первая буква
+            let_2_inds.first = (let_2_inds.first + 1) % 5;     // новая вторая буква
+        } else {       // иначе новые буквы стоят в других углах прямоугольника (но в тех же строках), который образован старыми буквами
+            int temp = let_1_inds.second;           // меняем столбцы местами
             let_1_inds.second = let_2_inds.second;
             let_2_inds.second = temp;
         }
 
-        encrypt_message += punct_marks_1;
-        encrypt_message.push_back(square[let_1_inds.first][let_1_inds.second]);
+        encrypt_message += punct_marks_1;                                         // добавление пунктуации до первой буквы
+        encrypt_message.push_back(square[let_1_inds.first][let_1_inds.second]);   // добавление новой первой буквы
 
-        encrypt_message += punct_marks_2;
-        encrypt_message.push_back(square[let_2_inds.first][let_2_inds.second]);
+        encrypt_message += punct_marks_2;                                         // добавление пунктуации до второй буквы
+        encrypt_message.push_back(square[let_2_inds.first][let_2_inds.second]);   // добавление новой второй буквы
     }
-    return encrypt_message;
+    return encrypt_message;   // возвращаем зашифрованное сообщение
 }
 
 string Cardan_grille(string message) {
     /*
     Функция, шифрующая сообщение при помощи решётки Кардано
     */
-    std::transform(message.begin(), message.end(), message.begin(), toupper);
+    std::transform(message.begin(), message.end(), message.begin(), toupper);   // message в верхний регистр
     string encrypt_message = "";
 
+    // решётка, при помощи которой будем шифровать
     vector <vector <int>> grille = {
         {1, 0, 0, 0},
         {0, 1, 0, 0},
@@ -260,39 +272,43 @@ string Cardan_grille(string message) {
 
     string no_alph = "";
     int ind = 0;
+    // крутим решётку 4 раза и получаем зашифрованное сообщение в матрице encrypt_mes_table
     for (int q = 0; q < 4; ++q) {
         for (int i = 0; i < 4; ++i) {
             for (int j = 0; j < 4; ++j) {
                 while (!isalpha(message[ind]) && ind < message.size()) {
-                    ++ind;
+                    ++ind;   // пропускаем не буквенные символы
                 }
                 if (grille[i][j]) {
-                    encrypt_mes_table[i][j] = message[ind];
+                    encrypt_mes_table[i][j] = message[ind];   // если в решётке 1, то берём букву
                     ++ind;
                 }
-                grille_rotate[j][3 - i] = grille[i][j];
+                grille_rotate[j][3 - i] = grille[i][j];   // новая повёрнутая решётка
             }
         }
-        grille = grille_rotate;
+        grille = grille_rotate;   // разворот решётки
     }
     int count_punct = 0;
     for (int i = 0; i < 4; ++i) {
         for (int j = 0; j < 4; ++j) {
-            ind = i * 4 + j + count_punct;
+            ind = i * 4 + j + count_punct;   // индекс символа в message
             while (!isalpha(message[ind])) {
+                // добавление пунктуации
                 encrypt_message.push_back(message[ind]);
                 ++ind;
                 ++count_punct;
             }
+            // добавление новой буквы
             encrypt_message.push_back(encrypt_mes_table[i][j]);
         }
     }
+    // добавление "хвоста" пунктуации
     ind = 16 + count_punct;
     while (ind < message.size()) {
         encrypt_message.push_back(message[ind]);
         ++ind;
     }
-    return encrypt_message;
+    return encrypt_message;   // возвращаем зашифрованное сообщение
 }
 
 bool letter_is_consonant(char letter) {
@@ -621,7 +637,6 @@ public:
     }
 
     void rounds() {
-        rounds_count = 1;
         while (lives > 0) {
 
             // настройки для корректного ввода
@@ -835,11 +850,12 @@ public:
         Boldness(CoutCentered(uno6));
         Boldness(CoutCentered(uno7));
         system("Color 0D");
-        sum_rounds_count += rounds_count;
+        sum_rounds_count += rounds_count - 1;
     }
 
     void reset() {
         // здесь откатываем до заводских настроек свойства для следующей игры
+        rounds_count = 1;
         score = 0;
         lives = 3;
     }
